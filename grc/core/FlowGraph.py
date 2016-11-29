@@ -29,6 +29,7 @@ from .utils import odict, expr_utils
 
 _parameter_matcher = re.compile('^(parameter)$')
 _monitors_searcher = re.compile('(ctrlport_monitor)')
+_function_probes_searcher = re.compile('(variable_function_probe)')
 _bussink_searcher = re.compile('^(bus_sink)$')
 _bussrc_searcher = re.compile('^(bus_source)$')
 _bus_struct_sink_searcher = re.compile('^(bus_structure_sink)$')
@@ -107,6 +108,15 @@ class FlowGraph(Element):
         monitors = filter(lambda b: _monitors_searcher.search(b.get_key()),
                           self.iter_enabled_blocks())
         return monitors
+
+    def get_function_probes(self):
+        """
+        Get a list of all vector signal probes
+        """
+        function_probes = filter(lambda b: _function_probes_searcher.search(b.get_key()),
+                          self.iter_enabled_blocks())
+                     
+        return function_probes
 
     def get_python_modules(self):
         """Iterate over custom code block ID and Source"""

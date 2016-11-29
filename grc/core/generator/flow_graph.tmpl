@@ -9,6 +9,7 @@
 ##@param flow_graph the flow_graph
 ##@param variables the variable blocks
 ##@param parameters the parameter blocks
+##@param function_probes the function probe blocks
 ##@param blocks the signal blocks
 ##@param connections the connections
 ##@param msgs the msg type connections
@@ -237,6 +238,36 @@ gr.io_signaturev($(len($io_sigs)), $(len($io_sigs)), [$(', '.join($size_strs))])
         #end if
     #end if
 #end for
+
+########################################################
+##Function Probes
+########################################################
+#if $blocks
+
+        $DIVIDER
+        # Function Probes
+        $DIVIDER
+#end if
+#for $blk in filter(lambda b: b.get_make(), $function_probes)
+    #if $blk in $variables
+        $indent($blk.get_make())
+    #else
+        self.$blk.get_id() = $indent($blk.get_make())
+        #if $blk.has_param('alias') and $blk.get_param('alias').get_evaluated()
+        (self.$blk.get_id()).set_block_alias("$blk.get_param('alias').get_evaluated()")
+        #end if
+        #if $blk.has_param('affinity') and $blk.get_param('affinity').get_evaluated()
+        (self.$blk.get_id()).set_processor_affinity($blk.get_param('affinity').get_evaluated())
+        #end if
+        #if (len($blk.get_sources())>0) and $blk.has_param('minoutbuf') and (int($blk.get_param('minoutbuf').get_evaluated()) > 0)
+        (self.$blk.get_id()).set_min_output_buffer($blk.get_param('minoutbuf').get_evaluated())
+        #end if
+        #if (len($blk.get_sources())>0) and $blk.has_param('maxoutbuf') and (int($blk.get_param('maxoutbuf').get_evaluated()) > 0)
+        (self.$blk.get_id()).set_max_output_buffer($blk.get_param('maxoutbuf').get_evaluated())
+        #end if
+    #end if
+#end for
+
 ########################################################
 ##Create Connections
 ##  The port name should be the id of the parent block.

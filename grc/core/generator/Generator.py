@@ -128,6 +128,7 @@ class TopBlockGenerator(object):
         variables = fg.get_variables()
         parameters = fg.get_parameters()
         monitors = fg.get_monitors()
+        function_probes = fg.get_function_probes()
 
         # List of blocks not including variables and imports and parameters and disabled
         def _get_block_sort_text(block):
@@ -146,23 +147,27 @@ class TopBlockGenerator(object):
             filter(lambda b: b.get_enabled() and not b.get_bypassed(), fg.blocks),
             lambda b: b.get_id(), _get_block_sort_text
         )
+
         deprecated_block_keys = set(block.get_name() for block in blocks_all if block.is_deprecated)
         for key in deprecated_block_keys:
             Messages.send_warning("The block {!r} is deprecated.".format(key))
 
         # List of regular blocks (all blocks minus the special ones)
-        blocks = filter(lambda b: b not in (imports + parameters), blocks_all)
+        blocks = filter(lambda b: b not in (imports + parameters + function_probes), blocks_all)
 
         for block in blocks:
             key = block.get_key()
             file_path = os.path.join(self._dirname, block.get_id() + '.py')
             if key == 'epy_block':
                 src = block.get_param('_source_code').get_value()
+                print src
                 output.append((file_path, src))
             elif key == 'epy_module':
                 src = block.get_param('source_code').get_value()
                 output.append((file_path, src))
-
+                print src
+            
+		
         # Filter out virtual sink connections
         def cf(c):
             return not (c.is_bus() or c.is_msg() or c.get_sink().get_parent().is_virtual_sink())
@@ -240,6 +245,7 @@ class TopBlockGenerator(object):
             'variables': variables,
             'parameters': parameters,
             'monitors': monitors,
+            'function_probes': function_probes,
             'blocks': blocks,
             'connections': connections,
             'connection_templates': connection_templates,
