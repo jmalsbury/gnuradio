@@ -160,12 +160,10 @@ class TopBlockGenerator(object):
             file_path = os.path.join(self._dirname, block.get_id() + '.py')
             if key == 'epy_block':
                 src = block.get_param('_source_code').get_value()
-                print src
                 output.append((file_path, src))
             elif key == 'epy_module':
                 src = block.get_param('source_code').get_value()
                 output.append((file_path, src))
-                print src
             
 		
         # Filter out virtual sink connections
